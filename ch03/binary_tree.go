@@ -52,6 +52,7 @@ type Node struct {
 	right *Node  // 右子结点
 }
 
+// 前序-递归实现
 func recusivPreOrderTraversal(root *Node) {
 	if root != nil {
 		fmt.Printf("%s ", root.data)
@@ -60,6 +61,7 @@ func recusivPreOrderTraversal(root *Node) {
 	}
 }
 
+// 中序-递归实现
 func recusivInOrderTraversal(root *Node) {
 	if root != nil {
 		recusivInOrderTraversal(root.left)
@@ -68,6 +70,7 @@ func recusivInOrderTraversal(root *Node) {
 	}
 }
 
+// 后序-递归实现
 func recusivPostOrderTraversal(root *Node) {
 	if root != nil {
 		recusivPostOrderTraversal(root.left)
@@ -76,6 +79,7 @@ func recusivPostOrderTraversal(root *Node) {
 	}
 }
 
+// 前序-非递归栈实现
 func stackPreOrderTraversal(node *Node) {
 	stack := &Stack{}
 	for node != nil || !stack.isEmpty() {
@@ -92,6 +96,7 @@ func stackPreOrderTraversal(node *Node) {
 	}
 }
 
+// 中序-非递归栈实现
 func stackInOrderTraversal(node *Node) {
 	stack := &Stack{}
 	for node != nil || !stack.isEmpty() {
@@ -162,6 +167,67 @@ func doubleStackPostOrderTraversal(node *Node) {
 	}
 }
 
+// 链表队列
+type Queue struct {
+	head *QueueNode // 队列头
+	tail *QueueNode // 队列尾
+}
+
+// 链表结点
+type QueueNode struct {
+	data *Node
+	next *QueueNode
+}
+
+// 添加到队首
+func (q *Queue) offer(node *QueueNode) {
+	if q.tail == nil {
+		q.head = node
+		q.tail = node
+	} else {
+		q.tail.next = node
+		q.tail = node
+	}
+}
+
+// 从队列中取出
+func (q *Queue) poll() *QueueNode {
+	if q.head == nil {
+		return nil
+	}
+
+	node := q.head
+	q.head = q.head.next
+	if q.head == nil {
+		q.tail = nil
+	}
+	return node
+}
+
+// 层级遍历
+func levelTraversal(root *Node) {
+	if root == nil {
+		return
+	}
+
+	queue := Queue{}
+	queue.offer(&QueueNode{data: root})
+	for {
+		node := queue.poll()
+		if node == nil {
+			break
+		}
+		fmt.Printf("%s ", node.data.data)
+		if node.data.left != nil {
+			queue.offer(&QueueNode{data: node.data.left})
+		}
+
+		if node.data.right != nil {
+			queue.offer(&QueueNode{data: node.data.right})
+		}
+	}
+}
+
 func main() {
 	bt := generate_tree()
 	fmt.Printf("使用递归的前序遍历: ")
@@ -190,6 +256,10 @@ func main() {
 
 	fmt.Printf("使用双栈的后序遍历: ")
 	doubleStackPostOrderTraversal(bt.root)
+	fmt.Println()
+
+	fmt.Printf("使用队列的层级遍历: ")
+	levelTraversal(bt.root)
 	fmt.Println()
 }
 
