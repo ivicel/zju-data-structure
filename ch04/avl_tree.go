@@ -1,42 +1,25 @@
-package main
+package ch04
 
-import "fmt"
-
-// 树的节点
-type Node struct {
-	depth int   // 该节点的深度
-	val   int   // 节点数据
-	left  *Node // 左子结点
-	right *Node // 右子结点
-}
-
-// 比较两个结点的大小
-// 相等返回 0, 小于返回 -1, 大于返回 1
-func (node *Node) Equal(other *Node) int {
-	if node.val == other.val {
-		return 0
-	} else if node.val > other.val {
-		return 1
-	} else {
-		return -1
-	}
-}
+import (
+	"github.com/ivicel/zju_data_structure/ch03"
+)
 
 type AVLTree struct {
-	root *Node // 根结点
+	ch03.BinaryTree
+	Equal func(*ch03.TreeNode, *ch03.TreeNode) int
 }
 
 // 插入新数据
-func (t *AVLTree) Insert(value int) {
-	node := &Node{
-		depth: 1,
-		val:   value,
+func (t *AVLTree) Insert(value interface{}) {
+	node := &ch03.TreeNode{
+		Depth: 1,
+		Data:  value,
 	}
 
-	t.root = t.insertUnderNode(t.root, node)
+	t.Root = t.insertUnderNode(t.Root, node)
 }
 
-func (t *AVLTree) insertUnderNode(parent *Node, newNode *Node) *Node {
+func (t *AVLTree) insertUnderNode(parent, newNode *ch03.TreeNode) *ch03.TreeNode {
 	// 如果是一棵空树时, 直接返回
 	// 如果该结点是已经是叶子结点, 则返回新生成的结点
 	if parent == nil {
@@ -44,14 +27,14 @@ func (t *AVLTree) insertUnderNode(parent *Node, newNode *Node) *Node {
 	}
 
 	// 将新结点插入到左子树还是右子树
-	if parent.Equal(newNode) < 0 {
-		parent.right = t.insertUnderNode(parent.right, newNode)
+	if t.Equal(parent, newNode) < 0 {
+		parent.Right = t.insertUnderNode(parent.Right, newNode)
 	} else {
-		parent.left = t.insertUnderNode(parent.left, newNode)
+		parent.Left = t.insertUnderNode(parent.Left, newNode)
 	}
 
 	// 对比当前结点的左右子树的高度, 判断是否需要重新调整平衡
-	if abs(getHeight(parent.left)-getHeight(parent.right)) > 1 {
+	if abs(getHeight(parent.Left)-getHeight(parent.Right)) > 1 {
 		parent = t.makeBalance(parent)
 	}
 
@@ -59,45 +42,45 @@ func (t *AVLTree) insertUnderNode(parent *Node, newNode *Node) *Node {
 	return parent
 }
 
-func (t *AVLTree) makeBalance(node *Node) *Node {
-	var node1, node2 *Node
-	if getHeight(node.left) > getHeight(node.right) &&
-		getHeight(node.left.left) >= getHeight(node.left.right) {
+func (t *AVLTree) makeBalance(node *ch03.TreeNode) *ch03.TreeNode {
+	var node1, node2 *ch03.TreeNode
+	if getHeight(node.Left) > getHeight(node.Right) &&
+		getHeight(node.Left.Left) >= getHeight(node.Left.Right) {
 		// ll 失衡
-		node1 = node.left
-		node.left = node1.right
-		node1.right = node
+		node1 = node.Left
+		node.Left = node1.Right
+		node1.Right = node
 		t.calculateHeight(node)
-	} else if getHeight(node.right) > getHeight(node.left) &&
-		getHeight(node.right.right) >= getHeight(node.right.left) {
+	} else if getHeight(node.Right) > getHeight(node.Left) &&
+		getHeight(node.Right.Right) >= getHeight(node.Right.Left) {
 		// rr 失衡
-		node1 = node.right
-		node.right = node1.left
-		node1.left = node
+		node1 = node.Right
+		node.Right = node1.Left
+		node1.Left = node
 		t.calculateHeight(node)
-	} else if getHeight(node.left) > getHeight(node.right) &&
-		getHeight(node.left.right) > getHeight(node.left.left) {
+	} else if getHeight(node.Left) > getHeight(node.Right) &&
+		getHeight(node.Left.Right) > getHeight(node.Left.Left) {
 		// lr 失衡
 		// 先做左旋转, 再做右旋转
-		node1 = node.left.right
-		node2 = node.left
-		node.left = node1.right
-		node2.right = node1.left
-		node1.right = node
-		node1.left = node2
+		node1 = node.Left.Right
+		node2 = node.Left
+		node.Left = node1.Right
+		node2.Right = node1.Left
+		node1.Right = node
+		node1.Left = node2
 
 		t.calculateHeight(node)
 		t.calculateHeight(node2)
-	} else if getHeight(node.right) > getHeight(node.left) &&
-		getHeight(node.right.left) > getHeight(node.right.right) {
+	} else if getHeight(node.Right) > getHeight(node.Left) &&
+		getHeight(node.Right.Left) > getHeight(node.Right.Right) {
 		// rl 失衡
 		// 先做右旋转, 再做左旋转
-		node1 = node.right.left
-		node2 = node.right
-		node.right = node1.left
-		node2.left = node1.right
-		node1.left = node
-		node1.right = node2
+		node1 = node.Right.Left
+		node2 = node.Right
+		node.Right = node1.Left
+		node2.Left = node1.Right
+		node1.Left = node
+		node1.Right = node2
 
 		t.calculateHeight(node)
 		t.calculateHeight(node2)
@@ -106,10 +89,10 @@ func (t *AVLTree) makeBalance(node *Node) *Node {
 	return node1
 }
 
-func (t *AVLTree) calculateHeight(node *Node) {
-	left := getHeight(node.left)
-	right := getHeight(node.right)
-	node.depth = max(left, right) + 1
+func (t *AVLTree) calculateHeight(node *ch03.TreeNode) {
+	left := getHeight(node.Left)
+	right := getHeight(node.Right)
+	node.Depth = max(left, right) + 1
 }
 
 func max(x, y int) int {
@@ -128,29 +111,10 @@ func abs(x int) int {
 	return x
 }
 
-func getHeight(node *Node) int {
+func getHeight(node *ch03.TreeNode) int {
 	if node == nil {
 		return 0
 	} else {
-		return node.depth
+		return node.Depth
 	}
-}
-
-func PreOrderTraversal(node *Node) {
-	if node != nil {
-		fmt.Printf("%d ", node.val)
-		PreOrderTraversal(node.left)
-		PreOrderTraversal(node.right)
-	}
-}
-
-func main() {
-	data := [...]int{16, 3, 7, 11, 9, 26, 18, 14, 15}
-	tree := &AVLTree{}
-	for _, d := range data {
-		tree.Insert(d)
-	}
-
-	PreOrderTraversal(tree.root)
-	fmt.Println()
 }
