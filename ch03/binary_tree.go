@@ -20,6 +20,10 @@ type TreeNode struct {
 	Right *TreeNode   // 右子结点
 }
 
+func (n TreeNode) String() string {
+	return fmt.Sprintf("%v", n.Data)
+}
+
 // 前序-递归实现
 func RecusivPreOrderTraversal(root *TreeNode) {
 	if root != nil {

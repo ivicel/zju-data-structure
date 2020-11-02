@@ -13,7 +13,7 @@ type EqualFunc func(*ch03.TreeNode, *ch03.TreeNode) int
 type PriorityQueue struct {
 	Size    int             // 当前队列大小
 	MaxSize int             // 队列的最大容量
-	Data    []ch03.TreeNode // 存储数据结点
+	Data    []ch03.TreeNode // 存储数据结点, 从下标 1 开始
 	Equal   EqualFunc
 }
 
@@ -24,7 +24,11 @@ func (q *PriorityQueue) Push(val interface{}) error {
 	}
 
 	// 将结点放到最后位置
-	newNode := ch03.TreeNode{Data: val}
+	var newNode ch03.TreeNode
+	var ok bool
+	if newNode, ok = val.(ch03.TreeNode); !ok {
+		newNode = ch03.TreeNode{Data: val}
+	}
 	q.Size++
 	q.Data[q.Size] = newNode
 	// 上滤
@@ -37,7 +41,7 @@ func (q *PriorityQueue) Push(val interface{}) error {
 	return nil
 }
 
-// 删除最大值
+// 弹出树根结点
 func (q *PriorityQueue) Pop() (ch03.TreeNode, error) {
 	if q.Size == 0 {
 		return ch03.TreeNode{}, errors.New("不能删除空树")
@@ -79,7 +83,7 @@ func (q *PriorityQueue) percolateDown(root int) {
 }
 
 // 打印树内容
-func (q *PriorityQueue) String() string {
+func (q PriorityQueue) String() string {
 	return fmt.Sprintf("%v", q.Data[1:q.Size+1])
 }
 
@@ -96,10 +100,11 @@ func CreateQueue(arr []interface{}, cmp EqualFunc) *PriorityQueue {
 	size := len(arr)
 	maxSize := size * 2
 	queue := InitQueue(maxSize, cmp)
+	queue.Size = size
 
-	nodes := make([]ch03.TreeNode, size, maxSize)
+	nodes := make([]ch03.TreeNode, maxSize)
 	for i, val := range arr {
-		nodes[i] = ch03.TreeNode{Data: val}
+		nodes[i+1] = ch03.TreeNode{Data: val}
 	}
 	queue.Data = nodes
 
